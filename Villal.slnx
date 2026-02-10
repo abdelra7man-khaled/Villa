@@ -1,3 +1,6 @@
 <Solution>
+  <Project Path="Villal.Application/Villal.Application.csproj" />
+  <Project Path="Villal.Domain/Villal.Domain.csproj" />
+  <Project Path="Villal.Infrastructure/Villal.Infrastructure.csproj" />
   <Project Path="Villal.Web/Villal.Web.csproj" />
 </Solution>
