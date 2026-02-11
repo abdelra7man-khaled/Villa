@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Villal.Domain.Models;
 using Villal.Infrastructure.Data;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Villal.Web.Controllers
 {
@@ -39,7 +40,7 @@ namespace Villal.Web.Controllers
             var villaToUpdate = _context.Villas.FirstOrDefault(v => v.Id == id);
             if (villaToUpdate == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), "Home");
             }
 
             return View(villaToUpdate);
