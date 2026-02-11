@@ -10,5 +10,10 @@ namespace Villal.Web.Controllers
             var villas = _context.Villas.ToList();
             return View(villas);
         }
+
+        public IActionResult Create()
+        {
+            return View();
+        }
     }
 }
