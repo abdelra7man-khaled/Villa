@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Villal.Domain.Models;
 using Villal.Infrastructure.Data;
 
 namespace Villal.Web.Controllers
@@ -14,6 +15,23 @@ namespace Villal.Web.Controllers
         public IActionResult Create()
         {
             return View();
+        }
+
+        [HttpPost]
+        public IActionResult Create(Villa newVilla)
+        {
+            if (ModelState.IsValid)
+            {
+                newVilla.CreatedAt = DateTime.UtcNow;
+                newVilla.UpdatedAt = DateTime.UtcNow;
+
+                _context.Villas.Add(newVilla);
+                _context.SaveChanges();
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(newVilla);
         }
     }
 }
