@@ -49,7 +49,7 @@ namespace Villal.Web.Controllers
         [HttpPost]
         public IActionResult Update(Villa villaToUpdate)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && villaToUpdate.Id > 0)
             {
                 _context.Villas.Update(villaToUpdate);
                 _context.SaveChanges();
@@ -58,6 +58,33 @@ namespace Villal.Web.Controllers
             }
 
             return View(villaToUpdate);
+        }
+
+        public IActionResult Delete(int? id)
+        {
+            var villaToDelete = _context.Villas.FirstOrDefault(v => v.Id == id);
+            if (villaToDelete == null)
+            {
+                return RedirectToAction(nameof(Error), "Home");
+            }
+
+            return View(villaToDelete);
+        }
+
+        [HttpPost]
+        public IActionResult Delete(Villa villaToDelete)
+        {
+            var existingVilla = _context.Villas.FirstOrDefault(v => v.Id == villaToDelete.Id);
+
+            if (existingVilla is not null)
+            {
+                _context.Villas.Remove(villaToDelete);
+                _context.SaveChanges();
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(villaToDelete);
         }
     }
 }
