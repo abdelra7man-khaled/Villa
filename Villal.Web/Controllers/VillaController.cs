@@ -45,5 +45,19 @@ namespace Villal.Web.Controllers
 
             return View(villaToUpdate);
         }
+
+        [HttpPost]
+        public IActionResult Update(Villa villaToUpdate)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Villas.Update(villaToUpdate);
+                _context.SaveChanges();
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(villaToUpdate);
+        }
     }
 }
