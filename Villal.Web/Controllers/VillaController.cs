@@ -33,5 +33,16 @@ namespace Villal.Web.Controllers
 
             return View(newVilla);
         }
+
+        public IActionResult Update(int? id)
+        {
+            var villaToUpdate = _context.Villas.FirstOrDefault(v => v.Id == id);
+            if (villaToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            return View(villaToUpdate);
+        }
     }
 }
