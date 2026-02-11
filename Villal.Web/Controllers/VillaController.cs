@@ -29,8 +29,12 @@ namespace Villal.Web.Controllers
                 _context.Villas.Add(newVilla);
                 _context.SaveChanges();
 
+                TempData["success"] = "Villa created successfully";
+
                 return RedirectToAction(nameof(Index));
             }
+
+            TempData["error"] = "Failed to create new villa";
 
             return View(newVilla);
         }
@@ -54,8 +58,12 @@ namespace Villal.Web.Controllers
                 _context.Villas.Update(villaToUpdate);
                 _context.SaveChanges();
 
+                TempData["success"] = "Villa updated successfully";
+
                 return RedirectToAction(nameof(Index));
             }
+
+            TempData["error"] = "Failed to update villa";
 
             return View(villaToUpdate);
         }
@@ -78,13 +86,17 @@ namespace Villal.Web.Controllers
 
             if (existingVilla is not null)
             {
-                _context.Villas.Remove(villaToDelete);
+                _context.Villas.Remove(existingVilla);
                 _context.SaveChanges();
+
+                TempData["success"] = "Villa deleted successfully";
 
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(villaToDelete);
+            TempData["error"] = "Failed to delete villa";
+
+            return View(existingVilla);
         }
     }
 }
