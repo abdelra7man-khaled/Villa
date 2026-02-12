@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Villal.Domain.Models;
+using Villal.Domain.Entities;
 using Villal.Infrastructure.Data;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 

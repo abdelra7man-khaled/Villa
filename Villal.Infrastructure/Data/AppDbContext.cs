@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Villal.Domain.Models;
+using Villal.Domain.Entities;
 
 namespace Villal.Infrastructure.Data
 {

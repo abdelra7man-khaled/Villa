@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Villal.Domain.Models
+namespace Villal.Domain.Entities
 {
     public class Villa
     {
