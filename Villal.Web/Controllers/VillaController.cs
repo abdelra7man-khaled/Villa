@@ -72,6 +72,26 @@ namespace Villal.Web.Controllers
         {
             if (ModelState.IsValid && villaToUpdate.Id > 0)
             {
+                if (villaToUpdate.Image is not null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(villaToUpdate.Image.FileName);
+                    string imagePath = Path.Combine(_webHostEnvironment.WebRootPath, @"images\Villa");
+
+                    if (!string.IsNullOrEmpty(villaToUpdate.ImageUrl))
+                    {
+                        var existingImagePath = Path.Combine(_webHostEnvironment.WebRootPath, villaToUpdate.ImageUrl.TrimStart('\\'));
+                        if (System.IO.File.Exists(existingImagePath))
+                        {
+                            System.IO.File.Delete(existingImagePath);
+                        }
+                    }
+
+                    using (var fileStream = new FileStream(Path.Combine(imagePath, fileName), FileMode.Create))
+                    {
+                        await villaToUpdate.Image.CopyToAsync(fileStream);
+                    }
+                }
+
                 _unitOfWork.Villa.Update(villaToUpdate);
                 await _unitOfWork.SaveChangesAsync();
 
