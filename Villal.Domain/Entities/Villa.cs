@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -19,5 +20,8 @@ namespace Villal.Domain.Entities
         public string? ImageUrl { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        [ValidateNever]
+        public IEnumerable<Amenity> VillaAmenity { get; set; }
     }
 }
