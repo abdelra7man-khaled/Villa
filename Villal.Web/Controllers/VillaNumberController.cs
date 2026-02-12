@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Villal.Domain.Entities;
 using Villal.Infrastructure.Data;
 using Villal.Web.ViewModels;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -112,31 +111,41 @@ namespace Villal.Web.Controllers
 
         public IActionResult Delete(int? villaNo)
         {
-            var villaToDelete = _context.Villas.FirstOrDefault(v => v.Id == id);
-            if (villaToDelete == null)
+            VillaNumberVM villaNumberVM = new()
+            {
+                Villas = _context.Villas.ToList().Select(v => new SelectListItem
+                {
+                    Text = v.Name,
+                    Value = v.Id.ToString()
+                }),
+                VillaNumber = _context.VillaNumbers.FirstOrDefault(vn => vn.VillaNo == villaNo)
+            };
+
+
+            if (villaNumberVM.VillaNumber is null)
             {
                 return RedirectToAction(nameof(Error), "Home");
             }
 
-            return View(villaToDelete);
+            return View(villaNumberVM);
         }
 
         [HttpPost]
-        public IActionResult Delete(Villa villaToDelete)
+        public IActionResult Delete(VillaNumberVM villaToDelete)
         {
-            var existingVilla = _context.Villas.FirstOrDefault(v => v.Id == villaToDelete.Id);
+            var existingVilla = _context.VillaNumbers.FirstOrDefault(v => v.VillaNo == villaToDelete.VillaNumber!.VillaNo);
 
             if (existingVilla is not null)
             {
-                _context.Villas.Remove(existingVilla);
+                _context.VillaNumbers.Remove(existingVilla);
                 _context.SaveChanges();
 
-                TempData["success"] = "Villa deleted successfully";
+                TempData["success"] = "Villa number deleted successfully";
 
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["error"] = "Failed to delete villa";
+            TempData["error"] = "Failed to delete villa number";
 
             return View(existingVilla);
         }
