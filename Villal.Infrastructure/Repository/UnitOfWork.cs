@@ -7,11 +7,13 @@ namespace Villal.Infrastructure.Repository
     {
         private readonly AppDbContext _context;
         public IVillaRepository Villa { get; private set; }
+        public IVillaNumberRepository VillaNumber { get; private set; }
 
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
             Villa = new VillaRepository(_context);
+            VillaNumber = new VillaNumberRepository(_context);
         }
 
         public async Task SaveChangesAsync()

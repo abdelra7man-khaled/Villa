@@ -63,5 +63,10 @@ namespace Villal.Infrastructure.Repository
         {
             _dbSet.Remove(entity);
         }
+
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> filter)
+        {
+            return await _dbSet.AnyAsync(filter);
+        }
     }
 }

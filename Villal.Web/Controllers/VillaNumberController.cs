@@ -1,25 +1,28 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Villal.Infrastructure.Data;
+using Villal.Application.Common.Interfaces;
+using Villal.Domain.Entities;
 using Villal.Web.ViewModels;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Villal.Web.Controllers
 {
-    public class VillaNumberController(AppDbContext _context) : Controller
+    public class VillaNumberController(IUnitOfWork _unitOfWork) : Controller
     {
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var villaNumbers = _context.VillaNumbers.Include(vn => vn.Villa).ToList();
+            var villaNumbers = await _unitOfWork.VillaNumber.GetAllAsync(includeProperties: "Villa");
             return View(villaNumbers);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            IEnumerable<Villa> villas = await _unitOfWork.Villa.GetAllAsync();
+
             VillaNumberVM villaNumberVM = new()
             {
-                Villas = _context.Villas.ToList().Select(v => new SelectListItem
+                Villas = villas.ToList().Select(v => new SelectListItem
                 {
                     Text = v.Name,
                     Value = v.Id.ToString()
@@ -30,14 +33,14 @@ namespace Villal.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(VillaNumberVM newVillaNumber)
+        public async Task<IActionResult> Create(VillaNumberVM newVillaNumber)
         {
-            bool roomNumberExists = _context.VillaNumbers.Any(vn => vn.VillaNo == newVillaNumber.VillaNumber!.VillaNo);
+            bool roomNumberExists = await _unitOfWork.VillaNumber.AnyAsync(vn => vn.VillaNo == newVillaNumber.VillaNumber!.VillaNo);
 
             if (ModelState.IsValid && !roomNumberExists)
             {
-                _context.VillaNumbers.Add(newVillaNumber.VillaNumber!);
-                _context.SaveChanges();
+                await _unitOfWork.VillaNumber.AddAsync(newVillaNumber.VillaNumber!);
+                await _unitOfWork.SaveChangesAsync();
 
                 TempData["success"] = "Villa Number created successfully";
 
@@ -53,7 +56,9 @@ namespace Villal.Web.Controllers
                 TempData["error"] = "Failed to create new villa Number";
             }
 
-            newVillaNumber.Villas = _context.Villas.ToList().Select(v => new SelectListItem
+            IEnumerable<Villa> villas = await _unitOfWork.Villa.GetAllAsync();
+
+            newVillaNumber.Villas = villas.ToList().Select(v => new SelectListItem
             {
                 Text = v.Name,
                 Value = v.Id.ToString()
@@ -62,16 +67,18 @@ namespace Villal.Web.Controllers
             return View(newVillaNumber);
         }
 
-        public IActionResult Update(int? villaNo)
+        public async Task<IActionResult> Update(int? villaNo)
         {
+            IEnumerable<Villa> villas = await _unitOfWork.Villa.GetAllAsync();
+
             VillaNumberVM villaNumberVM = new()
             {
-                Villas = _context.Villas.ToList().Select(v => new SelectListItem
+                Villas = villas.ToList().Select(v => new SelectListItem
                 {
                     Text = v.Name,
                     Value = v.Id.ToString()
                 }),
-                VillaNumber = _context.VillaNumbers.FirstOrDefault(vn => vn.VillaNo == villaNo)
+                VillaNumber = await _unitOfWork.VillaNumber.GetAsync(vn => vn.VillaNo == villaNo)
             };
 
 
@@ -84,13 +91,13 @@ namespace Villal.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Update(VillaNumberVM villaToUpdate)
+        public async Task<IActionResult> Update(VillaNumberVM villaToUpdate)
         {
 
             if (ModelState.IsValid)
             {
-                _context.VillaNumbers.Update(villaToUpdate.VillaNumber!);
-                _context.SaveChanges();
+                _unitOfWork.VillaNumber.Update(villaToUpdate.VillaNumber!);
+                await _unitOfWork.SaveChangesAsync();
 
                 TempData["success"] = "Villa Number updated successfully";
 
@@ -99,8 +106,9 @@ namespace Villal.Web.Controllers
 
             TempData["error"] = "Failed to update new villa Number";
 
+            IEnumerable<Villa> villas = await _unitOfWork.Villa.GetAllAsync();
 
-            villaToUpdate.Villas = _context.Villas.ToList().Select(v => new SelectListItem
+            villaToUpdate.Villas = villas.ToList().Select(v => new SelectListItem
             {
                 Text = v.Name,
                 Value = v.Id.ToString()
@@ -109,16 +117,18 @@ namespace Villal.Web.Controllers
             return View(villaToUpdate);
         }
 
-        public IActionResult Delete(int? villaNo)
+        public async Task<IActionResult> Delete(int? villaNo)
         {
+            IEnumerable<Villa> villas = await _unitOfWork.Villa.GetAllAsync();
+
             VillaNumberVM villaNumberVM = new()
             {
-                Villas = _context.Villas.ToList().Select(v => new SelectListItem
+                Villas = villas.ToList().Select(v => new SelectListItem
                 {
                     Text = v.Name,
                     Value = v.Id.ToString()
                 }),
-                VillaNumber = _context.VillaNumbers.FirstOrDefault(vn => vn.VillaNo == villaNo)
+                VillaNumber = await _unitOfWork.VillaNumber.GetAsync(vn => vn.VillaNo == villaNo)
             };
 
 
@@ -131,14 +141,14 @@ namespace Villal.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Delete(VillaNumberVM villaToDelete)
+        public async Task<IActionResult> Delete(VillaNumberVM villaToDelete)
         {
-            var existingVilla = _context.VillaNumbers.FirstOrDefault(v => v.VillaNo == villaToDelete.VillaNumber!.VillaNo);
+            var existingVilla = await _unitOfWork.VillaNumber.GetAsync(v => v.VillaNo == villaToDelete.VillaNumber!.VillaNo);
 
             if (existingVilla is not null)
             {
-                _context.VillaNumbers.Remove(existingVilla);
-                _context.SaveChanges();
+                _unitOfWork.VillaNumber.Remove(existingVilla);
+                await _unitOfWork.SaveChangesAsync();
 
                 TempData["success"] = "Villa number deleted successfully";
 
