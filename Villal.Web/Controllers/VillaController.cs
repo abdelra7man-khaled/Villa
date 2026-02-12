@@ -5,7 +5,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Villal.Web.Controllers
 {
-    public class VillaController(IUnitOfWork _unitOfWork) : Controller
+    public class VillaController(IUnitOfWork _unitOfWork, IWebHostEnvironment _webHostEnvironment) : Controller
     {
         public async Task<IActionResult> Index()
         {
@@ -23,6 +23,23 @@ namespace Villal.Web.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (newVilla.Image is not null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(newVilla.Image.FileName);
+                    string imagePath = Path.Combine(_webHostEnvironment.WebRootPath, @"images\Villa");
+
+                    using (var fileStream = new FileStream(Path.Combine(imagePath, fileName), FileMode.Create))
+                    {
+                        await newVilla.Image.CopyToAsync(fileStream);
+                    }
+
+                    newVilla.ImageUrl = @"\images\Villa\" + fileName;
+                }
+                else
+                {
+                    newVilla.ImageUrl = "https://placeholder.co/600x400";
+                }
+
                 newVilla.CreatedAt = DateTime.UtcNow;
                 newVilla.UpdatedAt = DateTime.UtcNow;
 
