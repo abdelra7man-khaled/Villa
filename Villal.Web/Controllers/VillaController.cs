@@ -90,6 +90,8 @@ namespace Villal.Web.Controllers
                     {
                         await villaToUpdate.Image.CopyToAsync(fileStream);
                     }
+
+                    villaToUpdate.ImageUrl = @"\images\Villa\" + fileName;
                 }
 
                 _unitOfWork.Villa.Update(villaToUpdate);
