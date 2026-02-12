@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Villal.Domain.Entities;
 using Villal.Infrastructure.Data;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -15,6 +16,14 @@ namespace Villal.Web.Controllers
 
         public IActionResult Create()
         {
+            IEnumerable<SelectListItem> villas = _context.Villas.ToList().Select(v => new SelectListItem
+            {
+                Text = v.Name,
+                Value = v.Id.ToString()
+            });
+
+            ViewBag.Villas = villas;
+
             return View();
         }
 
