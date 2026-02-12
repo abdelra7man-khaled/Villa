@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Villal.Domain.Entities;
 using Villal.Infrastructure.Data;
 using Villal.Web.ViewModels;
@@ -11,7 +12,7 @@ namespace Villal.Web.Controllers
     {
         public IActionResult Index()
         {
-            var villaNumbers = _context.VillaNumbers.ToList();
+            var villaNumbers = _context.VillaNumbers.Include(vn => vn.Villa).ToList();
             return View(villaNumbers);
         }
 
