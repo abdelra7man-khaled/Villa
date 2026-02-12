@@ -16,10 +16,5 @@ namespace Villal.Infrastructure.Repository
             _context.Villas.Update(entity);
         }
 
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
-
     }
 }

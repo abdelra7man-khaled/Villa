@@ -1,15 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Villal.Application.Common.Interfaces;
 using Villal.Domain.Entities;
-using Villal.Infrastructure.Data;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Villal.Web.Controllers
 {
-    public class VillaController(AppDbContext _context) : Controller
+    public class VillaController(IUnitOfWork _unitOfWork) : Controller
     {
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var villas = _context.Villas.ToList();
+            var villas = await _unitOfWork.Villa.GetAllAsync();
             return View(villas);
         }
 
@@ -19,15 +19,15 @@ namespace Villal.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Villa newVilla)
+        public async Task<IActionResult> Create(Villa newVilla)
         {
             if (ModelState.IsValid)
             {
                 newVilla.CreatedAt = DateTime.UtcNow;
                 newVilla.UpdatedAt = DateTime.UtcNow;
 
-                _context.Villas.Add(newVilla);
-                _context.SaveChanges();
+                await _unitOfWork.Villa.AddAsync(newVilla);
+                await _unitOfWork.SaveChangesAsync();
 
                 TempData["success"] = "Villa created successfully";
 
@@ -39,9 +39,9 @@ namespace Villal.Web.Controllers
             return View(newVilla);
         }
 
-        public IActionResult Update(int? id)
+        public async Task<IActionResult> Update(int? id)
         {
-            var villaToUpdate = _context.Villas.FirstOrDefault(v => v.Id == id);
+            var villaToUpdate = await _unitOfWork.Villa.GetAsync(v => v.Id == id);
             if (villaToUpdate == null)
             {
                 return RedirectToAction(nameof(Error), "Home");
@@ -51,12 +51,12 @@ namespace Villal.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Update(Villa villaToUpdate)
+        public async Task<IActionResult> Update(Villa villaToUpdate)
         {
             if (ModelState.IsValid && villaToUpdate.Id > 0)
             {
-                _context.Villas.Update(villaToUpdate);
-                _context.SaveChanges();
+                _unitOfWork.Villa.Update(villaToUpdate);
+                await _unitOfWork.SaveChangesAsync();
 
                 TempData["success"] = "Villa updated successfully";
 
@@ -68,9 +68,9 @@ namespace Villal.Web.Controllers
             return View(villaToUpdate);
         }
 
-        public IActionResult Delete(int? id)
+        public async Task<IActionResult> Delete(int? id)
         {
-            var villaToDelete = _context.Villas.FirstOrDefault(v => v.Id == id);
+            var villaToDelete = await _unitOfWork.Villa.GetAsync(v => v.Id == id);
             if (villaToDelete == null)
             {
                 return RedirectToAction(nameof(Error), "Home");
@@ -80,14 +80,14 @@ namespace Villal.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Delete(Villa villaToDelete)
+        public async Task<IActionResult> Delete(Villa villaToDelete)
         {
-            var existingVilla = _context.Villas.FirstOrDefault(v => v.Id == villaToDelete.Id);
+            var existingVilla = await _unitOfWork.Villa.GetAsync(v => v.Id == villaToDelete.Id);
 
             if (existingVilla is not null)
             {
-                _context.Villas.Remove(existingVilla);
-                _context.SaveChanges();
+                _unitOfWork.Villa.Remove(existingVilla);
+                await _unitOfWork.SaveChangesAsync();
 
                 TempData["success"] = "Villa deleted successfully";
 
