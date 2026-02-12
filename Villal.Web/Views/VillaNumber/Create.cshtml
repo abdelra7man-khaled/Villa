@@ -1,4 +1,4 @@
-﻿@model VillaNumber
+﻿@model VillaNumberVM
 
 <div class="w-100 card border-0 p-4">
 	<div class="card-header bg-success bg-gradient ml-0 py-3">
@@ -12,21 +12,21 @@
 		<form method="post" class="row">
 			<div class="p-3">
 				<div class="form-floating py-1 col-12">
-					<select asp-for="VillaId" asp-items="@ViewBag.Villas" class="form-select border shadow">
+					<select asp-for="VillaNumber.VillaId" asp-items="@Model.Villas" class="form-select border shadow">
 						<option disabled selected>-- Select Villa --</option>
 					</select>
-					<label asp-for="VillaId" class="ms-2">Villa Name</label>
-					<span asp-validation-for="VillaId" class="text-danger"></span>
+					<label asp-for="VillaNumber.VillaId" class="ms-2">Villa Name</label>
+					<span asp-validation-for="VillaNumber.VillaId" class="text-danger"></span>
 				</div>
 				<div class="form-floating py-1 col-12">
-					<input asp-for="VillaNo" class="form-control border shadow" />
-					<label asp-for="VillaNo" class="ms-2"></label>
-					<span asp-validation-for="VillaNo" class="text-danger"></span>
+					<input asp-for="VillaNumber.VillaNo" class="form-control border shadow" />
+					<label asp-for="VillaNumber.VillaNo" class="ms-2"></label>
+					<span asp-validation-for="VillaNumber.VillaNo" class="text-danger"></span>
 				</div>
 				<div class="form-floating py-1 col-12">
-					<input asp-for="SpecialDetails" class="form-control border shadow" />
-					<label asp-for="SpecialDetails" class="ms-2"></label>
-					<span asp-validation-for="SpecialDetails" class="text-danger"></span>
+					<input asp-for="VillaNumber.SpecialDetails" class="form-control border shadow" />
+					<label asp-for="VillaNumber.SpecialDetails" class="ms-2"></label>
+					<span asp-validation-for="VillaNumber.SpecialDetails" class="text-danger"></span>
 				</div>
 				<div class="row pt-3 justify-content-around">
 					<div class="col-6 col-md-3">
