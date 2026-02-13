@@ -22,7 +22,7 @@ namespace Villal.Web.ViewModels
         public string Name { get; set; }
         [DisplayName("Phone Number")]
         public string? PhoneNumber { get; set; }
-        public string? RedirectUrl { get; set; }
+        public string? ReturnUrl { get; set; }
 
         public string? Role { get; set; }
 

@@ -64,8 +64,10 @@ namespace Villal.Web.Controllers
             return View(loginVM);
         }
 
-        public async Task<IActionResult> Register()
+        public async Task<IActionResult> Register(string returnUrl = null)
         {
+            returnUrl ??= Url.Content("~/");
+
             if (!_roleManager.RoleExistsAsync(SD.Role_Admin).GetAwaiter().GetResult())
             {
                 await _roleManager.CreateAsync(new IdentityRole(SD.Role_Admin));
@@ -78,7 +80,8 @@ namespace Villal.Web.Controllers
                 {
                     Text = r.Name,
                     Value = r.Name
-                })
+                }),
+                ReturnUrl = returnUrl
             };
             return View(registerVM);
         }
@@ -114,13 +117,13 @@ namespace Villal.Web.Controllers
 
                     await _signInManager.SignInAsync(appUser, isPersistent: false);
 
-                    if (string.IsNullOrEmpty(registerVM.RedirectUrl))
+                    if (string.IsNullOrEmpty(registerVM.ReturnUrl))
                     {
                         return RedirectToAction("Index", "Home");
                     }
                     else
                     {
-                        return LocalRedirect(registerVM.RedirectUrl);
+                        return LocalRedirect(registerVM.ReturnUrl);
                     }
                 }
 
