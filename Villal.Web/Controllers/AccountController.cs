@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Villal.Application.Common.Interfaces;
 using Villal.Domain.Entities;
+using Villal.Web.ViewModels;
 
 namespace Villal.Web.Controllers
 {
@@ -23,9 +24,16 @@ namespace Villal.Web.Controllers
             _signInManager = signInManager;
             _roleManager = roleManager;
         }
-        public IActionResult Login()
+        public IActionResult Login(string returnUrl = null)
         {
-            return View();
+            returnUrl ??= Url.Content("~/");
+
+            LoginVM loginVM = new LoginVM
+            {
+                ReturnUrl = returnUrl
+            };
+
+            return View(loginVM);
         }
 
         public IActionResult Register()
