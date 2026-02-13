@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Villal.Application.Common.Interfaces;
 using Villal.Domain.Entities;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Villal.Web.Controllers
 {
+    [Authorize]
     public class VillaController(IUnitOfWork _unitOfWork, IWebHostEnvironment _webHostEnvironment) : Controller
     {
         public async Task<IActionResult> Index()

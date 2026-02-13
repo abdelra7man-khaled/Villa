@@ -1,13 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Villal.Application.Common.Interfaces;
+using Villal.Application.Common.Utility;
 using Villal.Domain.Entities;
 using Villal.Web.ViewModels;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Villal.Web.Controllers
 {
+    [Authorize(Roles = SD.Role_Admin)]
     public class AmenityController(IUnitOfWork _unitOfWork) : Controller
     {
         public async Task<IActionResult> Index()
