@@ -86,45 +86,48 @@ namespace Villal.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterVM registerVM)
         {
-            ApplicationUser appUser = new()
+            if (ModelState.IsValid)
             {
-                Name = registerVM.Name,
-                Email = registerVM.Email,
-                PhoneNumber = registerVM.PhoneNumber,
-                NormalizedEmail = registerVM.Email.ToUpper(),
-                UserName = registerVM.Email,
-                EmailConfirmed = true,
-                CreatedAt = DateTime.Now
-            };
-
-            var result = await _userManager.CreateAsync(appUser, registerVM.Password);
-            if (result.Succeeded)
-            {
-                if (!string.IsNullOrEmpty(registerVM.Role))
+                ApplicationUser appUser = new()
                 {
-                    await _userManager.AddToRoleAsync(appUser, registerVM.Role);
+                    Name = registerVM.Name,
+                    Email = registerVM.Email,
+                    PhoneNumber = registerVM.PhoneNumber,
+                    NormalizedEmail = registerVM.Email.ToUpper(),
+                    UserName = registerVM.Email,
+                    EmailConfirmed = true,
+                    CreatedAt = DateTime.Now
+                };
 
-                }
-                else
+                var result = await _userManager.CreateAsync(appUser, registerVM.Password);
+                if (result.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(appUser, SD.Role_Customer);
+                    if (!string.IsNullOrEmpty(registerVM.Role))
+                    {
+                        await _userManager.AddToRoleAsync(appUser, registerVM.Role);
+
+                    }
+                    else
+                    {
+                        await _userManager.AddToRoleAsync(appUser, SD.Role_Customer);
+                    }
+
+                    await _signInManager.SignInAsync(appUser, isPersistent: false);
+
+                    if (string.IsNullOrEmpty(registerVM.RedirectUrl))
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
+                    else
+                    {
+                        return LocalRedirect(registerVM.RedirectUrl);
+                    }
                 }
 
-                await _signInManager.SignInAsync(appUser, isPersistent: false);
-
-                if (string.IsNullOrEmpty(registerVM.RedirectUrl))
+                foreach (var error in result.Errors)
                 {
-                    return RedirectToAction("Index", "Home");
+                    ModelState.AddModelError(string.Empty, error.Description);
                 }
-                else
-                {
-                    return LocalRedirect(registerVM.RedirectUrl);
-                }
-            }
-
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
             }
 
             registerVM.Roles = _roleManager.Roles.Select(r => new SelectListItem
