@@ -4,13 +4,12 @@ using Villal.Domain.Entities;
 
 namespace Villal.Infrastructure.Data
 {
-    public class AppDbContext : IdentityDbContext
+    public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<Villa> Villas { get; set; }
         public DbSet<VillaNumber> VillaNumbers { get; set; }
         public DbSet<Amenity> Amenities { get; set; }
-
-
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
