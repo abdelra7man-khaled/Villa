@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Villal.Application.Common.Interfaces;
+using Villal.Application.Common.Utility;
 using Villal.Domain.Entities;
 using Villal.Web.ViewModels;
 
@@ -39,10 +40,10 @@ namespace Villal.Web.Controllers
 
         public async Task<IActionResult> Register()
         {
-            if (!_roleManager.RoleExistsAsync("Admin").GetAwaiter().GetResult())
+            if (!_roleManager.RoleExistsAsync(SD.Role_Admin).GetAwaiter().GetResult())
             {
-                await _roleManager.CreateAsync(new IdentityRole("Admin"));
-                await _roleManager.CreateAsync(new IdentityRole("Customer"));
+                await _roleManager.CreateAsync(new IdentityRole(SD.Role_Admin));
+                await _roleManager.CreateAsync(new IdentityRole(SD.Role_Customer));
             }
 
             RegisterVM registerVM = new()
@@ -54,6 +55,60 @@ namespace Villal.Web.Controllers
                 })
             };
             return View(registerVM);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterVM registerVM)
+        {
+            ApplicationUser appUser = new()
+            {
+                Name = registerVM.Name,
+                Email = registerVM.Email,
+                PhoneNumber = registerVM.PhoneNumber,
+                NormalizedEmail = registerVM.Email.ToUpper(),
+                UserName = registerVM.Email,
+                EmailConfirmed = true,
+                CreatedAt = DateTime.Now
+            };
+
+            var result = await _userManager.CreateAsync(appUser, registerVM.Password);
+            if (result.Succeeded)
+            {
+                if (!string.IsNullOrEmpty(registerVM.Role))
+                {
+                    await _userManager.AddToRoleAsync(appUser, registerVM.Role);
+
+                }
+                else
+                {
+                    await _userManager.AddToRoleAsync(appUser, SD.Role_Customer);
+                }
+
+                await _signInManager.SignInAsync(appUser, isPersistent: false);
+
+                if (string.IsNullOrEmpty(registerVM.RedirectUrl))
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    return LocalRedirect(registerVM.RedirectUrl);
+                }
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            registerVM.Roles = _roleManager.Roles.Select(r => new SelectListItem
+            {
+                Text = r.Name,
+                Value = r.Name
+            });
+
+            return View(registerVM);
+
         }
     }
 }
