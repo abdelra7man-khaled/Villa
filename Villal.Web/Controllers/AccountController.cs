@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Villal.Application.Common.Interfaces;
 using Villal.Domain.Entities;
 using Villal.Web.ViewModels;
@@ -36,9 +37,23 @@ namespace Villal.Web.Controllers
             return View(loginVM);
         }
 
-        public IActionResult Register()
+        public async Task<IActionResult> Register()
         {
-            return View();
+            if (!_roleManager.RoleExistsAsync("Admin").GetAwaiter().GetResult())
+            {
+                await _roleManager.CreateAsync(new IdentityRole("Admin"));
+                await _roleManager.CreateAsync(new IdentityRole("Customer"));
+            }
+
+            RegisterVM registerVM = new()
+            {
+                Roles = _roleManager.Roles.Select(r => new SelectListItem
+                {
+                    Text = r.Name,
+                    Value = r.Name
+                })
+            };
+            return View(registerVM);
         }
     }
 }
