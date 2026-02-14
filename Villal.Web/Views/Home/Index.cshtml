@@ -67,6 +67,7 @@
 @section Scripts {
     <script>
         function loadVillas() {
+            $('.spinner').show(); 
             var objData = {
                 checkInDate: $('#CheckInDate').val(),
                 nights: $('#Nights').val()
@@ -79,6 +80,15 @@
                 success: function (result) {
                     $('#Villas').empty();
                     $('#Villas').html(result);
+                    $('.spinner').hide();
+                },
+                failure: function(response) {
+                    $('.spinner').hide();
+					alert(response.responseText);
+                },
+                erro: function(response) {
+					$('.spinner').hide();
+					alert(response.responseText);
                 }
 			});
         }
