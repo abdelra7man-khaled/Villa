@@ -33,6 +33,26 @@ namespace Villal.Web.Controllers
             return View(homeVM);
         }
 
+        public async Task<IActionResult> GetVillasByDate(int nights, DateOnly checkInDate)
+        {
+            var villas = await _unitOfWork.Villa.GetAllAsync(includeProperties: "VillaAmenity");
+            foreach (var villa in villas)
+            {
+                if (villa.Id % 2 == 0)
+                {
+                    villa.IsAvailable = false;
+                }
+            }
+
+            HomeVM homeVM = new()
+            {
+                Villas = villas,
+                Nights = nights,
+                CheckInDate = checkInDate
+            };
+
+            return PartialView("_Villas", homeVM);
+        }
         public IActionResult Privacy()
         {
             return View();
