@@ -2,7 +2,7 @@
 
 namespace Villal.Web.ViewModels
 {
-    public class HomeVm
+    public class HomeVM
     {
         public IEnumerable<Villa> Villas { get; set; }
         public DateOnly CheckInDate { get; set; }

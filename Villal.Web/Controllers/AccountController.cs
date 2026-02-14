@@ -108,7 +108,6 @@ namespace Villal.Web.Controllers
                     if (!string.IsNullOrEmpty(registerVM.Role))
                     {
                         await _userManager.AddToRoleAsync(appUser, registerVM.Role);
-
                     }
                     else
                     {

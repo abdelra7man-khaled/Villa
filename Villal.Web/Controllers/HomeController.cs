@@ -8,7 +8,7 @@ namespace Villal.Web.Controllers
     {
         public async Task<IActionResult> Index()
         {
-            HomeVm homeVm = new()
+            HomeVM homeVm = new()
             {
                 Villas = await _unitOfWork.Villa.GetAllAsync(includeProperties: "VillaAmenity"),
                 Nights = 1,
@@ -16,6 +16,21 @@ namespace Villal.Web.Controllers
             };
 
             return View(homeVm);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Index(HomeVM homeVM)
+        {
+            homeVM.Villas = await _unitOfWork.Villa.GetAllAsync(includeProperties: "VillaAmenity");
+            foreach (var villa in homeVM.Villas)
+            {
+                if (villa.Id % 2 == 0)
+                {
+                    villa.IsAvailable = false;
+                }
+            }
+
+            return View(homeVM);
         }
 
         public IActionResult Privacy()
