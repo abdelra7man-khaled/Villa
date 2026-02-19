@@ -6,10 +6,11 @@ namespace Villal.Infrastructure.Data
 {
     public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
-        public DbSet<Villa> Villas { get; set; }
-        public DbSet<VillaNumber> VillaNumbers { get; set; }
-        public DbSet<Amenity> Amenities { get; set; }
-        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public DbSet<Villa> Villas => Set<Villa>();
+        public DbSet<VillaNumber> VillaNumbers => Set<VillaNumber>();
+        public DbSet<Amenity> Amenities => Set<Amenity>();
+        public DbSet<ApplicationUser> ApplicationUsers => Set<ApplicationUser>();
+        public DbSet<Booking> Bookings => Set<Booking>();
 
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)

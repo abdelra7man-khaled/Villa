@@ -9,6 +9,7 @@ namespace Villal.Infrastructure.Repository
         public IVillaRepository Villa { get; private set; }
         public IVillaNumberRepository VillaNumber { get; private set; }
         public IAmenityRepository Amenity { get; private set; }
+        public IBookingRepository Booking { get; private set; }
 
         public UnitOfWork(AppDbContext context)
         {
@@ -16,6 +17,7 @@ namespace Villal.Infrastructure.Repository
             Villa = new VillaRepository(_context);
             VillaNumber = new VillaNumberRepository(_context);
             Amenity = new AmenityRepository(_context);
+            Booking = new BookingRepository(_context);
         }
 
         public async Task SaveChangesAsync()
