@@ -19,20 +19,6 @@ namespace Villal.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index(HomeVM homeVM)
-        {
-            homeVM.Villas = await _unitOfWork.Villa.GetAllAsync(includeProperties: "VillaAmenity");
-            foreach (var villa in homeVM.Villas)
-            {
-                if (villa.Id % 2 == 0)
-                {
-                    villa.IsAvailable = false;
-                }
-            }
-
-            return View(homeVM);
-        }
-
         public async Task<IActionResult> GetVillasByDate(int nights, DateOnly checkInDate)
         {
             var villas = await _unitOfWork.Villa.GetAllAsync(includeProperties: "VillaAmenity");
