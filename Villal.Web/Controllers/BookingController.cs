@@ -43,7 +43,7 @@ namespace Villal.Web.Controllers
         public async Task<IActionResult> FinalizeBooking(Booking booking)
         {
             var villa = await _unitOfWork.Villa.GetAsync(v => v.Id == booking.VillaId);
-            booking.TotalPrice = booking.Villa.Price * booking.Nights;
+            booking.TotalPrice = villa.Price * booking.Nights;
 
             booking.Status = SD.StatusPending;
             booking.BookingDate = DateOnly.FromDateTime(DateTime.Now);
@@ -57,6 +57,7 @@ namespace Villal.Web.Controllers
         [Authorize]
         public async Task<IActionResult> BookingConfirmation(int bookingId)
         {
-            return View();
+            return View(bookingId);
         }
     }
+}
