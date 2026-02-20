@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Stripe.Checkout;
 using System.Security.Claims;
 using Villal.Application.Common.Interfaces;
 using Villal.Application.Common.Utility;
@@ -10,6 +11,12 @@ namespace Villal.Web.Controllers
     public class BookingController(IUnitOfWork unitOfWork) : Controller
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+
+
+        public IActionResult Index()
+        {
+            return View();
+        }
 
 
         [Authorize]
@@ -51,12 +58,56 @@ namespace Villal.Web.Controllers
             await _unitOfWork.Booking.AddAsync(booking);
             await _unitOfWork.SaveChangesAsync();
 
-            return RedirectToAction(nameof(BookingConfirmation), new { bookingId = booking.Id });
+            var domain = Request.Scheme + "://" + Request.Host.Value + "/";
+            var options = new SessionCreateOptions
+            {
+                SuccessUrl = domain + $"Booking/BookingConfirmation?bookingId={booking.Id}",
+                CancelUrl = domain + $"Booking/FinalizeBooking?villaId={booking.VillaId}&checkInDate={booking.CheckInDate}&nights={booking.Nights}",
+                LineItems = new List<SessionLineItemOptions>(),
+                Mode = "payment"
+            };
+
+            options.LineItems.Add(new SessionLineItemOptions
+            {
+                PriceData = new SessionLineItemPriceDataOptions
+                {
+                    UnitAmount = (long)(booking.TotalPrice * 100),
+                    Currency = "usd",
+                    ProductData = new SessionLineItemPriceDataProductDataOptions
+                    {
+                        Name = villa.Name,
+                        //Images = new List<string> { domain + villa.ImageUrl }
+                    },
+                },
+                Quantity = 1,
+            });
+
+            var service = new SessionService();
+            Session session = await service.CreateAsync(options);
+
+            _unitOfWork.Booking.UpdatePaymentIntentId(booking.Id, session.Id, session.PaymentIntentId);
+            await _unitOfWork.SaveChangesAsync();
+
+            Response.Headers.Add("Location", session.Url);
+
+            return new StatusCodeResult(303);
         }
 
         [Authorize]
         public async Task<IActionResult> BookingConfirmation(int bookingId)
         {
+            var booking = await _unitOfWork.Booking.GetAsync(b => b.Id == bookingId, includeProperties: "User,Villa");
+            if (booking.Status == SD.StatusPending)
+            {
+                var service = new SessionService();
+                var session = await service.GetAsync(booking.StripeSessionId);
+                if (session.PaymentStatus == "paid")
+                {
+                    _unitOfWork.Booking.UpdateStatus(bookingId, SD.StatusApproved);
+                    _unitOfWork.Booking.UpdatePaymentIntentId(bookingId, session.Id, session.PaymentIntentId);
+                    await _unitOfWork.SaveChangesAsync();
+                }
+            }
             return View(bookingId);
         }
     }

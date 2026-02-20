@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 using Villal.Application.Common.Interfaces;
 using Villal.Domain.Entities;
 using Villal.Infrastructure.Data;
@@ -33,6 +34,9 @@ builder.Services.Configure<IdentityOptions>(options =>
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
+
+StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Value;
+
 
 if (!app.Environment.IsDevelopment())
 {
