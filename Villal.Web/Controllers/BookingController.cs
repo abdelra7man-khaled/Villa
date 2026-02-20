@@ -18,6 +18,8 @@ namespace Villal.Web.Controllers
                 Nights = nights,
                 Villa = await _unitOfWork.Villa.GetAsync(v => v.Id == villaId, includeProperties: "VillaAmenity")
             };
+            booking.TotalPrice = booking.Villa.Price * nights;
+
             return View(booking);
         }
     }
