@@ -12,7 +12,7 @@ namespace Villal.Web.Controllers
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-
+        [Authorize]
         public IActionResult Index()
         {
             return View();
@@ -110,5 +110,31 @@ namespace Villal.Web.Controllers
             }
             return View(bookingId);
         }
+
+
+        #region API Calls
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetAll()
+        {
+            IEnumerable<Booking> bookings;
+
+            if (User.IsInRole(SD.Role_Admin))
+            {
+                bookings = await _unitOfWork.Booking.GetAllAsync(includeProperties: "User,Villa");
+            }
+            else
+            {
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+
+                bookings = await _unitOfWork.Booking.GetAllAsync(b => b.UserId == userId, includeProperties: "User,Villa");
+            }
+
+            return Json(new { data = bookings });
+        }
+
+        #endregion
     }
 }
