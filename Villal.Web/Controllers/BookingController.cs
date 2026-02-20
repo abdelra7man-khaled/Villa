@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Villal.Application.Common.Interfaces;
+using Villal.Application.Common.Utility;
 using Villal.Domain.Entities;
 
 namespace Villal.Web.Controllers
@@ -36,5 +37,26 @@ namespace Villal.Web.Controllers
 
             return View(booking);
         }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> FinalizeBooking(Booking booking)
+        {
+            var villa = await _unitOfWork.Villa.GetAsync(v => v.Id == booking.VillaId);
+            booking.TotalPrice = booking.Villa.Price * booking.Nights;
+
+            booking.Status = SD.StatusPending;
+            booking.BookingDate = DateOnly.FromDateTime(DateTime.Now);
+
+            await _unitOfWork.Booking.AddAsync(booking);
+            await _unitOfWork.SaveChangesAsync();
+
+            return RedirectToAction(nameof(BookingConfirmation), new { bookingId = booking.Id });
+        }
+
+        [Authorize]
+        public async Task<IActionResult> BookingConfirmation(int bookingId)
+        {
+            return View();
+        }
     }
-}
