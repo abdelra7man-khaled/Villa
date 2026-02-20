@@ -111,6 +111,14 @@ namespace Villal.Web.Controllers
             return View(bookingId);
         }
 
+        [Authorize]
+        public async Task<IActionResult> BookingDetails(int bookingId)
+        {
+            var booking = await _unitOfWork.Booking.GetAsync(b => b.Id == bookingId,
+                                    includeProperties: "User,Villa");
+            return View(booking);
+        }
+
 
         #region API Calls
 
