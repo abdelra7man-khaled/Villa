@@ -116,7 +116,7 @@ namespace Villal.Web.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(string status)
         {
             IEnumerable<Booking> bookings;
 
@@ -130,6 +130,11 @@ namespace Villal.Web.Controllers
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
                 bookings = await _unitOfWork.Booking.GetAllAsync(b => b.UserId == userId, includeProperties: "User,Villa");
+            }
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                bookings = bookings.Where(b => b.Status!.ToLower().Equals(status.ToLower()));
             }
 
             return Json(new { data = bookings });
