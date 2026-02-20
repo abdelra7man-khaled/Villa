@@ -17,6 +17,25 @@ namespace Villal.Infrastructure.Repository
             _context.Bookings.Update(entity);
         }
 
+        public void UpdateStatus(int bookingId, string bookingStatus, int villaNumber = 0)
+        {
+            var booking = _context.Bookings.FirstOrDefault(b => b.Id == bookingId);
+            if (booking is not null)
+            {
+                booking.Status = bookingStatus;
+
+                if (bookingStatus == SD.StatusCheckedIn)
+                {
+                    booking.VillaNumber = villaNumber;
+                    booking.ActualCheckInDate = DateTime.Now;
+                }
+
+                if (bookingStatus == SD.StatusCompleted)
+                {
+                    booking.ActualCheckOutDate = DateTime.Now;
+                }
+            }
+        }
         public void UpdatePaymentIntentId(int bookingId, string sessionId, string paymentIntentId)
         {
             var booking = _context.Bookings.FirstOrDefault(b => b.Id == bookingId);
@@ -32,25 +51,6 @@ namespace Villal.Infrastructure.Repository
                     booking.StriptePaymentIntentId = paymentIntentId;
                     booking.PaymentDate = DateTime.Now;
                     booking.IsPaymentSuccessful = true;
-                }
-            }
-        }
-
-        public void UpdateStatus(int bookingId, string bookingStatus)
-        {
-            var booking = _context.Bookings.FirstOrDefault(b => b.Id == bookingId);
-            if (booking is not null)
-            {
-                booking.Status = bookingStatus;
-
-                if (bookingStatus == SD.StatusCheckedIn)
-                {
-                    booking.ActualCheckInDate = DateTime.Now;
-                }
-
-                if (bookingStatus == SD.StatusCompleted)
-                {
-                    booking.ActualCheckOutDate = DateTime.Now;
                 }
             }
         }
