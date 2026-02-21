@@ -134,11 +134,34 @@ namespace Villal.Web.Controllers
             _unitOfWork.Booking.UpdateStatus(booking.Id, SD.StatusCheckedIn, booking.VillaNumber);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData["success"] = "Booking updated successfully";
+            TempData["success"] = "Booking checked in successfully";
 
             return RedirectToAction(nameof(BookingDetails), new { bookingId = booking.Id });
         }
 
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin)]
+        public async Task<IActionResult> CheckOut(Booking booking)
+        {
+            _unitOfWork.Booking.UpdateStatus(booking.Id, SD.StatusCompleted, booking.VillaNumber);
+            await _unitOfWork.SaveChangesAsync();
+
+            TempData["success"] = "Booking completed successfully";
+
+            return RedirectToAction(nameof(BookingDetails), new { bookingId = booking.Id });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin)]
+        public async Task<IActionResult> CancelBooking(Booking booking)
+        {
+            _unitOfWork.Booking.UpdateStatus(booking.Id, SD.StatusCancelled, 0);
+            await _unitOfWork.SaveChangesAsync();
+
+            TempData["success"] = "Booking cancelled successfully";
+
+            return RedirectToAction(nameof(BookingDetails), new { bookingId = booking.Id });
+        }
 
         #region API Calls
 
