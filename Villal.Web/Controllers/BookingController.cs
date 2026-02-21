@@ -127,6 +127,18 @@ namespace Villal.Web.Controllers
             return View(booking);
         }
 
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin)]
+        public async Task<IActionResult> CheckIn(Booking booking)
+        {
+            _unitOfWork.Booking.UpdateStatus(booking.Id, SD.StatusCheckedIn, booking.VillaNumber);
+            await _unitOfWork.SaveChangesAsync();
+
+            TempData["success"] = "Booking updated successfully";
+
+            return RedirectToAction(nameof(BookingDetails), new { bookingId = booking.Id });
+        }
+
 
         #region API Calls
 
