@@ -116,6 +116,14 @@ namespace Villal.Web.Controllers
         {
             var booking = await _unitOfWork.Booking.GetAsync(b => b.Id == bookingId,
                                     includeProperties: "User,Villa");
+
+            if (booking.VillaNumber == 0 && booking.Status == SD.StatusApproved)
+            {
+                var availableVillaNumber = await AssignAvailableVillaNumberByVilla(booking.VillaId);
+
+                booking.VillaNumbers = (await _unitOfWork.VillaNumber.GetAllAsync(vn => vn.VillaId == booking.VillaId &&
+                                                                        availableVillaNumber.Any(x => x == vn.VillaNo))).ToList();
+            }
             return View(booking);
         }
 
@@ -146,6 +154,28 @@ namespace Villal.Web.Controllers
             }
 
             return Json(new { data = bookings });
+        }
+
+
+        private async Task<List<int>> AssignAvailableVillaNumberByVilla(int villaId)
+        {
+            List<int> availableVillaNumbers = new();
+
+            var villaNumbers = await _unitOfWork.VillaNumber.GetAllAsync(vn => vn.VillaId == villaId);
+
+            var checkedInVilla = (await _unitOfWork.Booking.GetAllAsync(b => b.VillaId == villaId &&
+                                                                        b.Status == SD.StatusCheckedIn))
+                                                                        .Select(b => b.VillaNumber);
+
+            foreach (var villaNumber in villaNumbers)
+            {
+                if (!checkedInVilla.Contains(villaNumber.VillaNo))
+                {
+                    availableVillaNumbers.Add(villaNumber.VillaNo);
+                }
+            }
+
+            return availableVillaNumbers;
         }
 
         #endregion
