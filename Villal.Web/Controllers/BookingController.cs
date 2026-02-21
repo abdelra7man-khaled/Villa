@@ -55,6 +55,25 @@ namespace Villal.Web.Controllers
             booking.Status = SD.StatusPending;
             booking.BookingDate = DateOnly.FromDateTime(DateTime.Now);
 
+            var villaNumbers = (await _unitOfWork.VillaNumber.GetAllAsync()).ToList();
+            var bookedVillas = (await _unitOfWork.Booking.GetAllAsync(b => b.Status == SD.StatusApproved ||
+                                                                        b.Status == SD.StatusCheckedIn))
+                                                                        .ToList();
+
+            int roomAvailable = SD.VillaRoomsAvailableCount(villa.Id,
+                                                            villaNumbers,
+                                                            booking.CheckInDate,
+                                                            booking.Nights,
+                                                            bookedVillas);
+
+            if (roomAvailable == 0)
+            {
+                TempData["error"] = "Room has been sold out";
+                return RedirectToAction(nameof(FinalizeBooking),
+                    new { villaId = booking.VillaId, checkInDate = booking.CheckInDate, nights = booking.Nights });
+            }
+
+
             await _unitOfWork.Booking.AddAsync(booking);
             await _unitOfWork.SaveChangesAsync();
 
